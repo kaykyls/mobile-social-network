@@ -1,5 +1,4 @@
-import { StyleSheet } from 'react-native';
-
+import { StyleSheet, Pressable } from 'react-native';
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
 import { Link } from 'expo-router';
@@ -15,9 +14,14 @@ export default function TabOneScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.post}>
-        <View style={styles.picture}>
-          
-        </View>
+        <Link href={"/user/1"} style={styles.picture}>
+          <Pressable>
+            <View >
+            
+            </View>
+          </Pressable>
+        </Link>
+        
         <View style={styles.content}>
           <View style={styles.name}>
             <Text>name</Text>
