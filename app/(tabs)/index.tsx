@@ -1,43 +1,60 @@
-import { StyleSheet, Pressable } from 'react-native';
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { Text, View } from '@/components/Themed';
+import React from 'react';
+import { StyleSheet, FlatList, Pressable, View } from 'react-native';
+import { Text } from '@/components/Themed';
 import { Link } from 'expo-router';
-import { Redirect } from 'expo-router';
 
-export default function TabOneScreen() {
-  const user = null;
+interface Post {
+  id: string;
+  name: string;
+  username: string;
+  content: string;
+}
 
-  if (!user) {
-    // return <Redirect href="/login" />;
-  }
+const posts: Post[] = Array.from({ length: 10 }, (_, index) => ({
+  id: index.toString(),
+  name: `User ${index + 1}`,
+  username: `user${index + 1}`,
+  content: `Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium consectetur natus facere quasi temporibus, perspiciatis architecto ratione commodi accusamus laudantium sunt beatae rem ex optio, dolorum magni quas, ea doloremque? (Post ${index + 1})`,
+}));
 
+interface PostItemProps {
+  item: Post;
+}
+
+const PostItem: React.FC<PostItemProps> = ({ item }) => (
+  <View style={styles.post}>
+    <Link href={`/user/${item.id}`} style={styles.picture}>
+      <Pressable>
+        <View />
+      </Pressable>
+    </Link>
+    <View style={styles.content}>
+      <View style={styles.name}>
+        <Text>{item.name}</Text>
+        <Text>@{item.username}</Text>
+      </View>
+      <View style={styles.text}>
+        <Text>{item.content}</Text>
+      </View>
+    </View>
+  </View>
+);
+
+const TabOneScreen: React.FC = () => {
   return (
     <View style={styles.container}>
-      <View style={styles.post}>
-        <Link href={"/user/1"} style={styles.picture}>
-          <Pressable>
-            <View >
-            
-            </View>
-          </Pressable>
-        </Link>
-        
-        <View style={styles.content}>
-          <View style={styles.name}>
-            <Text>name</Text>
-            <Text>@username</Text>
-          </View>
-          <View style={styles.text}>
-            <Text>Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium consectetur natus facere quasi temporibus, perspiciatis architecto ratione commodi accusamus laudantium sunt beatae rem ex optio, dolorum magni quas, ea doloremque?</Text>
-          </View>
-          
-        </View>
-      </View>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      {/* <EditScreenInfo path="app/(tabs)/index.tsx" /> */}
+      <FlatList
+        data={posts}
+        renderItem={({ item }) => <PostItem item={item} />}
+        keyExtractor={(item) => item.id}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
+      />
+      <Link href="/new-post" style={styles.floatingButton}>
+        <Text style={styles.floatingButtonText}>+</Text>
+      </Link>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   text: {
@@ -71,5 +88,29 @@ const styles = StyleSheet.create({
   },
   separator: {
     height: 1,
+    backgroundColor: '#555',
+  },
+  floatingButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 16,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#007bff',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    textAlign: 'center'
+  },
+  floatingButtonText: {
+    fontSize: 30,
+    color: '#fff',
+    fontWeight: 'bold',
+    lineHeight: 60,
   },
 });
+
+export default TabOneScreen;
