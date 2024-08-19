@@ -1,7 +1,6 @@
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
-import { Link, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 
 export default function TabTwoScreen() {
   const router = useRouter();
@@ -10,6 +9,9 @@ export default function TabTwoScreen() {
     router.push('/edit');
   };
 
+  const handleLogout = () => {
+    router.push('/login');
+  };
 
   return (
     <View style={styles.container}>
@@ -30,7 +32,10 @@ export default function TabTwoScreen() {
       </View>
       <View>
         <TouchableOpacity style={styles.editBtn} onPress={handleEdit}>
-          <Text>Editar Perfil</Text>
+          <Text style={styles.editBtnText}>Editar Perfil</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+          <Text style={styles.logoutBtnText}>Sair</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -45,6 +50,22 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     marginTop: 32,
   },
+  logoutBtn: {
+    borderWidth: 1,
+    borderColor: '#555',
+    padding: 10,
+    alignItems: 'center',
+    borderRadius: 6,
+    marginTop: 16,
+  },
+  editBtnText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
+  logoutBtnText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
   userWrapper: {
     flexDirection: 'row',
     gap: 16,
@@ -54,7 +75,7 @@ const styles = StyleSheet.create({
     height: 75,
     borderRadius: 50,
     backgroundColor: 'gray',
-    marginLeft: 'auto'
+    marginLeft: 'auto',
   },
   followInfo: {
     flexDirection: 'row',
