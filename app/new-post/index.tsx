@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, TextInput, Pressable, View } from 'react-native';
 import { Text } from '@/components/Themed';
-import { useRouter } from 'expo-router';
+import { useRouter, Stack } from 'expo-router';
 
 const NewPost: React.FC = () => {
   const [content, setContent] = useState('');
@@ -13,21 +13,24 @@ const NewPost: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
-        <Text style={styles.title}>O que está acontecendo?</Text>
-        <TextInput
-            placeholderTextColor={'#555'}
-            style={styles.textInput}
-            multiline
-            numberOfLines={10}
-            placeholder="Escreva o seu post aqui..."
-            value={content}
-            onChangeText={setContent}
-        />
-        <Pressable style={styles.button} onPress={handlePost}>
-            <Text style={styles.buttonText}>Postar</Text>
-        </Pressable>
-    </View>
+    <>
+      <Stack.Screen options={{title: 'Novo post'}}/>
+      <View style={styles.container}>
+            <Text style={styles.title}>O que está acontecendo?</Text>
+            <TextInput
+                placeholderTextColor={'#555'}
+                style={styles.textInput}
+                multiline
+                numberOfLines={10}
+                placeholder="Escreva o seu post aqui..."
+                value={content}
+                onChangeText={setContent}
+            />
+            <Pressable style={styles.button} onPress={handlePost}>
+                <Text style={styles.buttonText}>Postar</Text>
+            </Pressable>
+        </View>
+    </>
   );
 };
 

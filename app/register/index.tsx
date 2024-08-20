@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { useRouter, Link } from 'expo-router';
+import { useRouter, Link, Stack } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 
@@ -16,37 +16,40 @@ const RegisterScreen = () => {
     };
 
     return (
-        <View style={styles.container}>
-            <Text style={{color: Colors[colorScheme ?? 'light'].text}}>Email</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Email"
-                value={email}
-                onChangeText={setEmail}
-            />
-            <Text style={{color: Colors[colorScheme ?? 'light'].text}}>Senha</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Senha"
-                secureTextEntry
-                value={password}
-                onChangeText={setPassword}
-            />
-            <Text style={{color: Colors[colorScheme ?? 'light'].text}}>Confirmar Senha</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Confirmar Senha"
-                secureTextEntry
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-            />
-            <TouchableOpacity style={styles.button} onPress={handleRegister}>
-                <Text style={styles.buttonText}>Registrar</Text>  
-            </TouchableOpacity>
-            <View style={styles.loginText}>
-                <Text style={{color: Colors[colorScheme ?? 'light'].text, textAlign: 'center'}}>Já possui uma conta? <Link style={styles.loginLink} href="/login">Login</Link></Text>
+        <>
+            <Stack.Screen options={{title: 'Registrar'}}/>
+            <View style={styles.container}>
+                <Text style={{color: Colors[colorScheme ?? 'light'].text}}>Email</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Email"
+                    value={email}
+                    onChangeText={setEmail}
+                />
+                <Text style={{color: Colors[colorScheme ?? 'light'].text}}>Senha</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Senha"
+                    secureTextEntry
+                    value={password}
+                    onChangeText={setPassword}
+                />
+                <Text style={{color: Colors[colorScheme ?? 'light'].text}}>Confirmar Senha</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Confirmar Senha"
+                    secureTextEntry
+                    value={confirmPassword}
+                    onChangeText={setConfirmPassword}
+                />
+                <TouchableOpacity style={styles.button} onPress={handleRegister}>
+                    <Text style={styles.buttonText}>Registrar</Text>  
+                </TouchableOpacity>
+                <View style={styles.loginText}>
+                    <Text style={{color: Colors[colorScheme ?? 'light'].text, textAlign: 'center'}}>Já possui uma conta? <Link style={styles.loginLink} href="/login">Login</Link></Text>
+                </View>
             </View>
-        </View>
+        </>
     );
 };
 

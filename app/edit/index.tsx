@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
+import { Stack } from 'expo-router';
 
 const MyComponent = () => {
     const [name, setName] = React.useState('');
@@ -16,41 +17,44 @@ const MyComponent = () => {
     };
 
     return (
-        <View style={styles.container}>
-            <Text style={{color: Colors[colorScheme ?? 'light'].text}}>Nome</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Nome"
-                value={name}
-                onChangeText={setName}
-            />
-            <Text style={{color: Colors[colorScheme ?? 'light'].text}}>Usuário</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Usuário"
-                value={username}
-                onChangeText={setUsername}
-            />
-            <Text style={{color: Colors[colorScheme ?? 'light'].text}}>Email</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Email"
-                value={email}
-                onChangeText={setEmail}
-            />
-            <Text style={{color: Colors[colorScheme ?? 'light'].text}}>Senha</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Senha"
-                secureTextEntry
-                value={password}
-                onChangeText={setPassword}
-            />
-            <TouchableOpacity style={styles.button} onPress={handleSave}>
-                <Text style={styles.buttonText}>Salvar</Text>
-            </TouchableOpacity>
-
-        </View>
+        <>
+            <Stack.Screen options={{title: 'Editar perfil'}}/>
+            <View style={styles.container}>
+                <Text style={{color: Colors[colorScheme ?? 'light'].text}}>Nome</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Nome"
+                    value={name}
+                    onChangeText={setName}
+                />
+                <Text style={{color: Colors[colorScheme ?? 'light'].text}}>Usuário</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Usuário"
+                    value={username}
+                    onChangeText={setUsername}
+                />
+                <Text style={{color: Colors[colorScheme ?? 'light'].text}}>Email</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Email"
+                    value={email}
+                    onChangeText={setEmail}
+                />
+                <Text style={{color: Colors[colorScheme ?? 'light'].text}}>Senha</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Senha"
+                    secureTextEntry
+                    value={password}
+                    onChangeText={setPassword}
+                />
+                <TouchableOpacity style={styles.button} onPress={handleSave}>
+                    <Text style={styles.buttonText}>Salvar</Text>
+                </TouchableOpacity>
+            </View>
+        </>
+        
     );
 };
 

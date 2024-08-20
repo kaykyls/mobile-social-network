@@ -1,25 +1,30 @@
 import { StyleSheet } from 'react-native';
 import { Text, View } from '@/components/Themed';
+import { Stack } from 'expo-router';
 
 export default function UserProfileScreen() {
   return (
-    <View style={styles.container}>
-      <View style={styles.userWrapper}>
-        <View style={styles.userInfo}>
-          <View>
-            <Text style={styles.name}>User Name</Text>
-            <Text style={styles.username}>@user.username</Text>
+    <>
+      <Stack.Screen options={{title: 'Usuário Tal'}}/>
+      <View style={styles.container}>
+        <View style={styles.userWrapper}>
+          <View style={styles.userInfo}>
+            <View>
+              <Text style={styles.name}>User Name</Text>
+              <Text style={styles.username}>@user.username</Text>
+            </View>
+            <View style={styles.followInfo}>
+              <Text>Following: 50</Text>
+              <Text>Followers: 200</Text>
+            </View>
           </View>
-          <View style={styles.followInfo}>
-            <Text>Following: 50</Text>
-            <Text>Followers: 200</Text>
+          <View style={styles.picture}>
+            
           </View>
-        </View>
-        <View style={styles.picture}>
-          
         </View>
       </View>
-    </View>
+    </>
+    
   );
 }
 
