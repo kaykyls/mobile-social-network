@@ -1,5 +1,7 @@
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import Colors from '@/constants/Colors';
+import { useColorScheme } from '@/components/useColorScheme';
 
 const MyComponent = () => {
     const [name, setName] = React.useState('');
@@ -7,34 +9,36 @@ const MyComponent = () => {
     const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
 
+    const colorScheme = useColorScheme();
+
     const handleSave = () => {
         
     };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.label}>Nome</Text>
+            <Text style={{color: Colors[colorScheme ?? 'light'].text}}>Nome</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Nome"
                 value={name}
                 onChangeText={setName}
             />
-            <Text style={styles.label}>Usuário</Text>
+            <Text style={{color: Colors[colorScheme ?? 'light'].text}}>Usuário</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Usuário"
                 value={username}
                 onChangeText={setUsername}
             />
-            <Text style={styles.label}>Email</Text>
+            <Text style={{color: Colors[colorScheme ?? 'light'].text}}>Email</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Email"
                 value={email}
                 onChangeText={setEmail}
             />
-            <Text style={styles.label}>Senha</Text>
+            <Text style={{color: Colors[colorScheme ?? 'light'].text}}>Senha</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Senha"
@@ -65,11 +69,6 @@ const styles = StyleSheet.create({
     container: {
         padding: 16,
     },
-    label: {
-        marginBottom: 8,
-        fontSize: 16,
-        color: '#FFFFFF',
-    },
     input: {
         height: 40,
         borderColor: '#222222',
@@ -77,6 +76,7 @@ const styles = StyleSheet.create({
         paddingLeft: 8,
         borderWidth: 1,
         borderRadius: 6,
+        marginTop: 8
     },
 });
 

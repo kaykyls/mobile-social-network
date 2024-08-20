@@ -1,8 +1,12 @@
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { useRouter } from 'expo-router';
+import Colors from '@/constants/Colors';
+import { useColorScheme } from '@/components/useColorScheme';
 
 export default function TabTwoScreen() {
+  const colorScheme = useColorScheme();
+
   const router = useRouter();
   
   const handleEdit = () => {
@@ -35,7 +39,7 @@ export default function TabTwoScreen() {
           <Text style={styles.editBtnText}>Editar Perfil</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-          <Text style={styles.logoutBtnText}>Sair</Text>
+          <Text style={{color: Colors[colorScheme ?? 'light'].text}}>Sair</Text>
         </TouchableOpacity>
       </View>
     </View>

@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { useRouter, Link } from 'expo-router';
+import Colors from '@/constants/Colors';
+import { useColorScheme } from '@/components/useColorScheme';
 
 const LoginScreen = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const router = useRouter();
+    const colorScheme = useColorScheme();
 
     const handleLogin = () => {
         router.push('/');
@@ -13,14 +16,14 @@ const LoginScreen = () => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.label}>Email</Text>
+            <Text style={{color: Colors[colorScheme ?? 'light'].text}}>Email</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Email"
                 value={email}
                 onChangeText={setEmail}
             />
-            <Text style={styles.label}>Senha</Text>
+            <Text style={{color: Colors[colorScheme ?? 'light'].text}}>Senha</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Senha"
@@ -31,7 +34,10 @@ const LoginScreen = () => {
             <TouchableOpacity style={styles.button} onPress={handleLogin}>
                 <Text style={styles.buttonText}>Login</Text>  
             </TouchableOpacity>
-            <Text style={styles.registerText}>Não possui uma conta? <Link style={styles.registerLink} href="/register">Registrar-se</Link></Text>
+            <View style={styles.registerText}>
+                <Text style={{color: Colors[colorScheme ?? 'light'].text, textAlign: 'center'}}>Não possui uma conta? <Link style={styles.registerLink} href="/register">Registrar-se</Link></Text>
+            </View>
+            
         </View>
     );
 };
@@ -42,14 +48,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         padding: 16,
     },
-    label: {
-        fontSize: 16,
-        marginBottom: 4,
-        color: '#FFFFFF',
-    },
     registerText: {
         color: '#FFFFFF',
-        textAlign: 'center',
         marginTop: 16,
     },
     registerLink: {
@@ -63,6 +63,7 @@ const styles = StyleSheet.create({
         marginBottom: 12,
         paddingHorizontal: 8,
         borderRadius: 6,
+        marginTop: 4
     },
     button: {
         backgroundColor: '#007BFF',
@@ -70,6 +71,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderRadius: 5,
         width: '100%',
+        marginTop: 4
     },
     buttonText: {
         color: '#FFFFFF',

@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { useRouter, Link } from 'expo-router';
+import Colors from '@/constants/Colors';
+import { useColorScheme } from '@/components/useColorScheme';
 
 const RegisterScreen = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const router = useRouter();
+    const colorScheme = useColorScheme();
 
     const handleRegister = () => {
         router.push('/');
@@ -14,14 +17,14 @@ const RegisterScreen = () => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.label}>Email</Text>
+            <Text style={{color: Colors[colorScheme ?? 'light'].text}}>Email</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Email"
                 value={email}
                 onChangeText={setEmail}
             />
-            <Text style={styles.label}>Senha</Text>
+            <Text style={{color: Colors[colorScheme ?? 'light'].text}}>Senha</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Senha"
@@ -29,7 +32,7 @@ const RegisterScreen = () => {
                 value={password}
                 onChangeText={setPassword}
             />
-            <Text style={styles.label}>Confirmar Senha</Text>
+            <Text style={{color: Colors[colorScheme ?? 'light'].text}}>Confirmar Senha</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Confirmar Senha"
@@ -40,7 +43,9 @@ const RegisterScreen = () => {
             <TouchableOpacity style={styles.button} onPress={handleRegister}>
                 <Text style={styles.buttonText}>Registrar</Text>  
             </TouchableOpacity>
-            <Text style={styles.loginText}>Já possui uma conta? <Link style={styles.loginLink} href="/login">Login</Link></Text>
+            <View style={styles.loginText}>
+                <Text style={{color: Colors[colorScheme ?? 'light'].text, textAlign: 'center'}}>Já possui uma conta? <Link style={styles.loginLink} href="/login">Login</Link></Text>
+            </View>
         </View>
     );
 };
@@ -79,6 +84,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderRadius: 5,
         width: '100%',
+        marginTop: 4
     },
     buttonText: {
         color: '#FFFFFF',
