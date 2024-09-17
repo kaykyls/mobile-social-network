@@ -1,8 +1,11 @@
 import { StyleSheet } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { Stack } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 
 export default function UserProfileScreen() {
+  const { id } = useLocalSearchParams();
+
   return (
     <>
       <Stack.Screen options={{title: 'Usuário Tal'}}/>
@@ -10,7 +13,7 @@ export default function UserProfileScreen() {
         <View style={styles.userWrapper}>
           <View style={styles.userInfo}>
             <View>
-              <Text style={styles.name}>User Name</Text>
+              <Text style={styles.name}>User: {id}</Text>
               <Text style={styles.username}>@user.username</Text>
             </View>
             <View style={styles.followInfo}>
