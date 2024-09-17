@@ -1,19 +1,52 @@
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 
 export default function TabTwoScreen() {
+  const [userData, setUserData] = useState({ name: '', login: '' });
   const colorScheme = useColorScheme();
-
   const router = useRouter();
-  
+
+  const fetchUserData = async () => {
+    try {
+      const userData = await AsyncStorage.getItem('user');
+
+      if (userData) {
+        const user = JSON.parse(userData);
+
+        const response = await fetch(`https://api.papacapim.just.pro.br/users/${user.id}`);
+
+        if (response.ok) {
+          const data = await response.json();
+          setUserData({
+            name: data.name,
+            login: data.login,
+          });
+        } else {
+          Alert.alert('Erro', 'Não foi possível carregar os dados do usuário.');
+        }
+      } else {
+        Alert.alert('Erro', 'ID do usuário não encontrado.');
+      }
+    } catch (error) {
+      Alert.alert('Erro', 'Ocorreu um erro ao tentar buscar os dados do usuário.');
+    }
+  };
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
   const handleEdit = () => {
     router.push('/edit');
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem('user_id');
     router.push('/login');
   };
 
@@ -22,24 +55,22 @@ export default function TabTwoScreen() {
       <View style={styles.userWrapper}>
         <View style={styles.userInfo}>
           <View>
-            <Text style={styles.name}>Kayky</Text>
-            <Text style={styles.username}>@dev.kayky</Text>
+            <Text style={styles.name}>{userData.name}</Text>
+            <Text style={styles.username}>@{userData.login}</Text>
           </View>
           <View style={styles.followInfo}>
             <Text>Seguindo: 10</Text>
             <Text>Seguidores: 100</Text>
           </View>
         </View>
-        <View style={styles.picture}>
-          
-        </View>
+        <View style={styles.picture}></View>
       </View>
       <View>
         <TouchableOpacity style={styles.editBtn} onPress={handleEdit}>
           <Text style={styles.editBtnText}>Editar Perfil</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-          <Text style={{color: Colors[colorScheme ?? 'light'].text}}>Sair</Text>
+          <Text style={{ color: Colors[colorScheme ?? 'light'].text }}>Sair</Text>
         </TouchableOpacity>
       </View>
     </View>
