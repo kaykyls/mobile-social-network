@@ -1,54 +1,85 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, FlatList, Pressable, View } from 'react-native';
 import { Text } from '@/components/Themed';
 import { Link } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Post {
   id: string;
-  name: string;
-  username: string;
-  content: string;
+  user_login: string;
+  message: string;
 }
 
-const posts: Post[] = Array.from({ length: 10 }, (_, index) => ({
-  id: index.toString(),
-  name: `User ${index + 1}`,
-  username: `user${index + 1}`,
-  content: `Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium consectetur natus facere quasi temporibus, perspiciatis architecto ratione commodi accusamus laudantium sunt beatae rem ex optio, dolorum magni quas, ea doloremque? (Post ${index + 1})`,
-}));
-
-interface PostItemProps {
-  item: Post;
-}
-
-const PostItem: React.FC<PostItemProps> = ({ item }) => (
+const PostItem: React.FC<{ item: Post }> = ({ item }) => (
   <View style={styles.post}>
-    <Link href={`/user/${item.id}`} style={styles.picture}>
+    <Link href={`/user/${item.user_login}`} style={styles.picture}>
       <Pressable>
         <View />
       </Pressable>
     </Link>
     <View style={styles.content}>
       <View style={styles.name}>
-        <Text>{item.name}</Text>
-        <Text>@{item.username}</Text>
+        <Text>@{item.user_login}</Text>
       </View>
       <View style={styles.text}>
-        <Text>{item.content}</Text>
+        <Text>{item.message}</Text>
       </View>
     </View>
   </View>
 );
 
 const TabOneScreen: React.FC = () => {
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  console.log(posts);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const userData = await AsyncStorage.getItem('user');
+
+        if (!userData) {
+          console.error('Token not found');
+          return;
+        }
+
+        const response = await fetch('https://api.papacapim.just.pro.br/posts', {
+          method: 'GET',
+          headers: {
+            'x-session-token': JSON.parse(userData).token,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+
+          setPosts(data);
+        } else {
+          console.error('Failed to fetch posts');
+        }
+      } catch (error) {
+        console.error('Error fetching posts:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
   return (
     <View style={styles.container}>
-      <FlatList
-        data={posts}
-        renderItem={({ item }) => <PostItem item={item} />}
-        keyExtractor={(item) => item.id}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-      />
+      {loading ? (
+        <Text>Loading...</Text>
+      ) : (
+        <FlatList
+          data={posts}
+          renderItem={({ item }) => <PostItem item={item} />}
+          keyExtractor={(item) => item.id}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+        />
+      )}
       <Link href="/new-post" style={styles.floatingButton}>
         <Text style={styles.floatingButtonText}>+</Text>
       </Link>
@@ -103,7 +134,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
-    textAlign: 'center'
+    textAlign: 'center',
   },
   floatingButtonText: {
     fontSize: 30,
