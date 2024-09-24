@@ -11,18 +11,29 @@ const EditProfileScreen = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [userId, setUserId] = useState(null);
+    const [token, setToken] = useState(null);
     const router = useRouter();
     const colorScheme = useColorScheme();
 
     const fetchUserData = async () => {
         try {
             const userData = await AsyncStorage.getItem('user');
+            
             if (userData) {
-                
-                const user = JSON.parse(userData);
+                const user_login = JSON.parse(userData).user_login;
+                const token = JSON.parse(userData).token;
+
+                const response = await fetch(`https://api.papacapim.just.pro.br/users/${user_login}`, {
+                    headers: {
+                        'x-session-token': token
+                    }
+                });
+                const user = await response.json();
+
+                console.log(user);
+
                 setName(user.name);
                 setUsername(user.login);
-                setUserId(user.id);
             }
         } catch (error) {
             Alert.alert('Erro', 'Não foi possível carregar os dados do usuário.');
@@ -47,10 +58,18 @@ const EditProfileScreen = () => {
         };
 
         try {
+            const userData = await AsyncStorage.getItem('user');
+
+            if (!userData) {
+                Alert.alert('Erro', 'Não foi possível carregar os dados do usuário.');
+                return;
+            }
+
             const response = await fetch(`https://api.papacapim.just.pro.br/users/${userId}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
+                    'x-session-token': JSON.parse(userData).token,
                 },
                 body: JSON.stringify(updateData),
             });
@@ -111,11 +130,20 @@ const EditProfileScreen = () => {
 
     const handleDeleteAccount = async () => {
         try {
-            const response = await fetch(`https://api.papacapim.just.pro.br/users/${userId}`, {
-                method: 'DELETE',
-            });
+            const userData = await AsyncStorage.getItem('user');
 
-            console.log(response);
+            if (!userData) {
+                Alert.alert('Erro', 'Não foi possível carregar os dados do usuário.');
+                return;
+            }
+
+            const response = await fetch(`https://api.papacapim.just.pro.br/users/${username}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-session-token': JSON.parse(userData).token,
+                },
+            });
 
             if (response.ok) {
                 Alert.alert('Sucesso', 'Conta excluída com sucesso!');
