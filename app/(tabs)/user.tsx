@@ -18,7 +18,13 @@ export default function TabTwoScreen() {
       if (userData) {
         const user = JSON.parse(userData);
 
-        const response = await fetch(`https://api.papacapim.just.pro.br/users/${user.id}`);
+        console.log(user.user_login);
+
+        const response = await fetch(`https://api.papacapim.just.pro.br/users/${user.user_login}`, {
+          headers: {
+            'x-session-token': user.token,
+          },
+        });
 
         if (response.ok) {
           const data = await response.json();
