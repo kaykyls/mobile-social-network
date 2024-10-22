@@ -52,7 +52,7 @@ export default function TabTwoScreen() {
   };
 
   const handleLogout = async () => {
-    await AsyncStorage.removeItem('user_id');
+    await AsyncStorage.removeItem('user');
     router.push('/login');
   };
 
