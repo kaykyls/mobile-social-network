@@ -1,21 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, TextInput, FlatList, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Link } from 'expo-router';
 
-// Interfaces para definir a estrutura dos dados
 interface User {
-    // id: number;
     name: string;
-    user_login: string;
+    login: string;
 }
 
 interface Post {
-    // id: number;  // id do post
-    user_login: string;  // login do usuário que postou
-    message: string;  // conteúdo do post
+    id: string;
+    user_login: string;
+    message: string;
 }
 
-// Tipo que abrange os resultados
 type Result = User | Post;
 
 const SearchScreen = () => {
@@ -25,9 +23,22 @@ const SearchScreen = () => {
 
     const handleSearchType = (type: 'users' | 'posts') => {
         setResults([]);
-
         setSearchType(type);
-    }
+    };
+
+    const fetchLikes = useCallback(async (posts: Post[], token: string) => {
+        const likesPromises = posts.map(post =>
+            fetch(`https://api.papacapim.just.pro.br/posts/${post.user_login}/likes`, {
+                method: 'GET',
+                headers: { 'x-session-token': token },
+            })
+            .then(res => res.ok ? res.json() : [])
+            .catch(() => [])
+        );
+
+        const likesResults = await Promise.all(likesPromises);
+        return likesResults.flat();
+    }, []);
 
     useEffect(() => {
         const fetchResults = async () => {
@@ -49,10 +60,25 @@ const SearchScreen = () => {
                         'x-session-token': JSON.parse(userData).token,
                     },
                 });
-                const data: Result[] = await response.json(); // Especifica o tipo de dados esperado
-                setResults(data);
+                const data: Result[] = await response.json();
 
-        console.log(data);
+                if (searchType === 'posts') {
+                    const token = JSON.parse(userData).token;
+                    const postsWithLikes = await Promise.all(
+                        (data as Post[]).map(async post => {
+                            const likes = await fetchLikes([post], token);
+                            return {
+                                ...post,
+                                liked: Boolean(likes.find(like => like.user_login === post.user_login)),
+                                likeId: likes.find(like => like.user_login === post.user_login)?.id,
+                                likesCount: likes.length,
+                            };
+                        })
+                    );
+                    setResults(postsWithLikes);
+                } else {
+                    setResults(data);
+                }
 
             } catch (error) {
                 console.error('Error fetching search results:', error);
@@ -64,11 +90,10 @@ const SearchScreen = () => {
         } else {
             setResults([]);
         }
-    }, [query, searchType]);
+    }, [query, searchType, fetchLikes]);
 
     return (
         <View style={styles.container}>
-            
             <TextInput
                 style={styles.input}
                 value={query}
@@ -92,27 +117,33 @@ const SearchScreen = () => {
             <FlatList
                 data={results}
                 keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item }) => (
-                    <View style={styles.resultItem}>
-                        {searchType === 'users' ? (
-                            <>
-                                <View style={styles.profilePicture} />
-                                <View>
-                                    <Text style={styles.name}>{(item as User).name}</Text>
-                                    <Text style={styles.login}>{(item as User).user_login}</Text>
+                renderItem={({ item }) => {
+                    return (
+                        <>
+                            {searchType === 'users' ? (
+                                <Link
+                                    href={`/user/${(item as User).login}`}
+                                    style={{ borderBottomColor: '#ddd', borderBottomWidth: 1 }}
+                                >
+                                    <View style={styles.resultItem}>
+                                        <View style={styles.profilePicture} />
+                                        <View>
+                                            <Text style={styles.name}>{(item as User).name}</Text>
+                                            <Text style={styles.login}>@{(item as User).login}</Text>
+                                        </View>
+                                    </View>
+                                </Link>
+                            ) : (
+                                <View style={styles.postsResultItem}>
+                                    <View>
+                                        <Text style={styles.name}>{(item as Post).message}</Text>
+                                        <Text style={styles.login}>@{(item as Post).user_login}</Text>
+                                    </View>
                                 </View>
-                            </>
-                        ) : (
-                            <>
-                                <View style={styles.profilePicture} />
-                                <View>
-                                    <Text style={styles.name}>{(item as Post).message}</Text>
-                                    <Text style={styles.login}>Por: {(item as Post).user_login}</Text>
-                                </View>
-                            </>
-                        )}
-                    </View>
-                )}
+                            )}
+                        </>
+                    );
+                }}
             />
         </View>
     );
@@ -131,15 +162,13 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 10,
         alignItems: 'center',
-        borderWidth: 1,
-        borderColor: 'gray',
     },
     activeTab: {
-        backgroundColor: '#ddd',
+        borderBottomWidth: 1,
+        borderBottomColor: 'blue',
     },
     tabText: {
         fontWeight: 'bold',
-        color: "#fff"
     },
     input: {
         height: 40,
@@ -147,13 +176,21 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         marginBottom: 10,
         paddingHorizontal: 10,
+        borderRadius: 8,
     },
     resultItem: {
+        flex: 1,
         flexDirection: 'row',
-        alignItems: 'center',
-        padding: 10,
+        paddingBottom: 10,
+        paddingTop: 10,
+    },
+    postsResultItem: {
+        flex: 1,
+        flexDirection: 'row',
+        paddingBottom: 10,
+        paddingTop: 10,
         borderBottomWidth: 1,
-        borderBottomColor: 'gray',
+        borderBottomColor: '#ddd',
     },
     profilePicture: {
         width: 40,
