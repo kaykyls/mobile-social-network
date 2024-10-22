@@ -1,17 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, FlatList, Pressable, View } from 'react-native';
+import { StyleSheet, FlatList, Pressable, View, RefreshControl } from 'react-native';
 import { Text } from '@/components/Themed';
 import { Link } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 
+interface Like {
+  id: number;
+  user_login: string;
+  post_id: number;
+}
+
 interface Post {
   id: string;
   user_login: string;
   message: string;
+  liked: boolean;
+  likeId?: number;
+  likesCount: number;
 }
 
-const PostItem: React.FC<{ item: Post }> = ({ item }) => {
+const PostItem: React.FC<{ item: Post; onLikeToggle: (id: string, liked: boolean, likeId?: number) => void }> = ({ item, onLikeToggle }) => {
   const router = useRouter();
 
   return (
@@ -28,10 +37,12 @@ const PostItem: React.FC<{ item: Post }> = ({ item }) => {
         <View style={styles.text}>
           <Text>{item.message}</Text>
         </View>
+        <Text style={styles.likesCount}>{item.likesCount} {item.likesCount > 1 ? 'curtidas' : 'curtida'}</Text>
         <Pressable onPress={() => router.push(`/post/${item.id}/replies`)} style={styles.replyButton}>
-          <Text>
-            Comentários
-          </Text>
+          <Text>Comentários</Text>
+        </Pressable>
+        <Pressable onPress={() => onLikeToggle(item.id, item.liked, item.likeId)} style={styles.likeButton}>
+          <Text>{item.liked ? 'Descurtir' : 'Curtir'}</Text>
         </Pressable>
       </View>
     </View>
@@ -41,42 +52,147 @@ const PostItem: React.FC<{ item: Post }> = ({ item }) => {
 const TabOneScreen: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
-
-  console.log(posts);
+  const [refreshing, setRefreshing] = useState(false);  // Estado para controlar o pull-to-refresh
+  const [userLogin, setUserLogin] = useState<string>('');
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const userData = await AsyncStorage.getItem('user');
+    const fetchUserData = async () => {
+      const userData = await AsyncStorage.getItem('user');
+      if (userData) {
+        setUserLogin(JSON.parse(userData).user_login);
+      }
+    };
 
-        if (!userData) {
-          console.error('Token not found');
-          return;
-        }
+    fetchUserData();
+  }, []);
 
-        const response = await fetch('https://api.papacapim.just.pro.br/posts', {
-          method: 'GET',
+  const fetchPosts = async () => {
+    try {
+      const userData = await AsyncStorage.getItem('user');
+
+      if (!userData) {
+        console.error('Token not found');
+        return;
+      }
+
+      const token = JSON.parse(userData).token;
+
+      const response = await fetch('https://api.papacapim.just.pro.br/posts', {
+        method: 'GET',
+        headers: {
+          'x-session-token': token,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const postsWithLikes = await Promise.all(data.map(async (post: Post) => {
+          const likesResponse = await fetch(`https://api.papacapim.just.pro.br/posts/${post.id}/likes`, {
+            method: 'GET',
+            headers: {
+              'x-session-token': token,
+            },
+          });
+
+          const likesData: Like[] = await likesResponse.json();
+
+          const userLike = likesData.find(like => like.user_login === userLogin);
+          const liked = Boolean(userLike);
+
+          return {
+            ...post,
+            liked,
+            likeId: userLike?.id,
+            likesCount: likesData.length,
+          };
+        }));
+
+        setPosts(postsWithLikes);
+      } else {
+        console.error('Failed to fetch posts');
+      }
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);  // Para parar o pull-to-refresh
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts();
+  }, [userLogin]);
+
+  const handleLikeToggle = async (postId: string, currentlyLiked: boolean, likeId?: number) => {
+    const userData = await AsyncStorage.getItem('user');
+    if (!userData) {
+      console.error('Token not found');
+      return;
+    }
+
+    const token = JSON.parse(userData).token;
+
+    try {
+      if (currentlyLiked && likeId) {
+        const url = `https://api.papacapim.just.pro.br/posts/${postId}/likes/${likeId}`;
+        const response = await fetch(url, {
+          method: 'DELETE',
           headers: {
-            'x-session-token': JSON.parse(userData).token,
+            'x-session-token': token,
           },
         });
 
         if (response.ok) {
-          const data = await response.json();
-
-          setPosts(data);
+          setPosts(prevPosts =>
+            prevPosts.map(post => {
+              if (post.id === postId) {
+                return {
+                  ...post,
+                  liked: false,
+                  likesCount: post.likesCount - 1,
+                };
+              }
+              return post;
+            })
+          );
         } else {
-          console.error('Failed to fetch posts');
+          console.error('Failed to remove like');
         }
-      } catch (error) {
-        console.error('Error fetching posts:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      } else {
+        const url = `https://api.papacapim.just.pro.br/posts/${postId}/likes`;
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'x-session-token': token,
+          },
+        });
 
+        if (response.ok) {
+          setPosts(prevPosts =>
+            prevPosts.map(post => {
+              if (post.id === postId) {
+                return {
+                  ...post,
+                  liked: true,
+                  likesCount: post.likesCount + 1,
+                };
+              }
+              return post;
+            })
+          );
+        } else {
+          console.error('Failed to add like');
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling like:', error);
+    }
+  };
+
+  const onRefresh = () => {
+    setRefreshing(true);
     fetchPosts();
-  }, []);
+  };
 
   return (
     <View style={styles.container}>
@@ -85,9 +201,14 @@ const TabOneScreen: React.FC = () => {
       ) : (
         <FlatList
           data={posts}
-          renderItem={({ item }) => <PostItem item={item} />}
+          renderItem={({ item }) => (
+            <PostItem item={item} onLikeToggle={handleLikeToggle} />
+          )}
           keyExtractor={(item) => item.id}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
         />
       )}
       <Link href="/new-post" style={styles.floatingButton}>
@@ -157,6 +278,16 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 6,
     marginTop: 16,
+  },
+  likeButton: {
+    backgroundColor: '#007bff',
+    padding: 10,
+    borderRadius: 6,
+    marginTop: 8,
+  },
+  likesCount: {
+    marginVertical: 8,
+    fontWeight: 'bold',
   },
 });
 
