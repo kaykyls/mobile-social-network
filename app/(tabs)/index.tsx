@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
   },
   content: {
     gap: 8,
-    alignItems: 'center',
+    alignItems: 'flex-start',
     width: '100%',
     flexShrink: 1,
   },
