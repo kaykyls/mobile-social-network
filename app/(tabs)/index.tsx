@@ -33,13 +33,13 @@ const PostItem: React.FC<{ item: Post; onLikeToggle: (id: string, liked: boolean
       </Link>
       <View style={styles.content}>
         <View style={styles.name}>
-          <Text>@{item.user_login}</Text>
+          <Text style={styles.nameText}>@{item.user_login}</Text>
         </View>
         <View style={styles.text}>
           <Text>{item.message}</Text>
         </View>
         <View style={styles.likesCount}>
-          <Text>{item.likesCount} {item.likesCount > 1 ? 'curtidas' : 'curtida'}</Text>
+          <Text style={styles.likesCountText}>{item.likesCount} {item.likesCount > 1 ? 'curtidas' : 'curtida'}</Text>
         </View>
         <View style={styles.actions}>
           <Pressable onPress={() => router.push(`/post/${item.id}/replies`)} style={styles.actionButton}>
@@ -66,6 +66,8 @@ const TabOneScreen: React.FC = () => {
       const userData = await AsyncStorage.getItem('user');
       if (userData) {
         setUserLogin(JSON.parse(userData).user_login);
+      } else {
+        router.push('/login');
       }
     };
 
@@ -222,12 +224,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
   },
+  nameText: {
+    fontWeight: 'bold',
+  },
   container: {
     flex: 1,
   },
   separator: {
     height: 1,
-    backgroundColor: '#555',
+    backgroundColor: '#ddd',
   },
   floatingButton: {
     position: 'absolute',
@@ -256,8 +261,11 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   likesCount: {
-    marginVertical: 8,
+    marginVertical: 2,
     fontWeight: 'bold',
+  },
+  likesCountText: {
+    color: '#bbb',
   },
   actionButton: {
     flexDirection: 'row',
