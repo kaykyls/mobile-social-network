@@ -44,7 +44,7 @@ const LoginScreen = () => {
 
     return (
         <>
-            <Stack.Screen options={{ title: 'Login' }} />
+            <Stack.Screen options={{ title: 'Login', headerShown: false }} />
             <View style={styles.container}>
                 <Text style={{ color: Colors[colorScheme ?? 'light'].text }}>Email</Text>
                 <TextInput

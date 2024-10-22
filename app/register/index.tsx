@@ -51,7 +51,7 @@ const RegisterScreen = () => {
 
     return (
         <>
-            <Stack.Screen options={{ title: 'Registrar' }} />
+            <Stack.Screen options={{ title: 'Registrar', headerShown: false }} />
             <View style={styles.container}>
                 <Text style={{ color: Colors[colorScheme ?? 'light'].text }}>Nome</Text>
                 <TextInput
