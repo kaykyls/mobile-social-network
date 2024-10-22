@@ -137,9 +137,6 @@ const styles = StyleSheet.create({
     padding: 16,
     flex: 1,
   },
-  text: {
-    color: '#fff',
-  },
   replyContainer: {
     marginBottom: 16,
     borderRadius: 8,
@@ -162,7 +159,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     marginBottom: 10,
     borderRadius: 4,
-    color: '#fff',
+  },
+  text: {
+    marginBottom: 4,
   },
 });
 
