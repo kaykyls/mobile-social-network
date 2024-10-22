@@ -48,13 +48,11 @@ const NewPost: React.FC = () => {
     <>
       <Stack.Screen options={{ title: 'Novo post' }} />
       <View style={styles.container}>
-        <Text style={styles.title}>O que está acontecendo?</Text>
         <TextInput
           placeholderTextColor={'#555'}
           style={styles.textInput}
-          multiline
-          numberOfLines={10}
-          placeholder="Escreva o seu post aqui..."
+          multiline={true}
+          placeholder="O que está acontecendo?"
           value={content}
           onChangeText={setContent}
         />
@@ -69,6 +67,7 @@ const NewPost: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: 'space-between',
     padding: 16,
   },
   title: {
