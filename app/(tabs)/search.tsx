@@ -1,10 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, FlatList, Text, StyleSheet } from 'react-native';
+import { View, TextInput, FlatList, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// Interfaces para definir a estrutura dos dados
+interface User {
+    // id: number;
+    name: string;
+    user_login: string;
+}
+
+interface Post {
+    // id: number;  // id do post
+    user_login: string;  // login do usuário que postou
+    message: string;  // conteúdo do post
+}
+
+// Tipo que abrange os resultados
+type Result = User | Post;
 
 const SearchScreen = () => {
     const [query, setQuery] = useState('');
-    const [results, setResults] = useState<{ login: string, name: string, created_at: string, updated_at: string }[]>([]);
+    const [results, setResults] = useState<Result[]>([]);
+    const [searchType, setSearchType] = useState<'users' | 'posts'>('users');
+
+    const handleSearchType = (type: 'users' | 'posts') => {
+        setResults([]);
+
+        setSearchType(type);
+    }
 
     useEffect(() => {
         const fetchResults = async () => {
@@ -16,14 +39,21 @@ const SearchScreen = () => {
             }
 
             try {
-                const response = await fetch(`https://api.papacapim.just.pro.br/users?search=${query}`, {
+                const endpoint = searchType === 'users' 
+                    ? `https://api.papacapim.just.pro.br/users?search=${query}`
+                    : `https://api.papacapim.just.pro.br/posts?search=${query}`;
+
+                const response = await fetch(endpoint, {
                     method: 'GET',
                     headers: {
                         'x-session-token': JSON.parse(userData).token,
                     },
                 });
-                const data = await response.json();
+                const data: Result[] = await response.json(); // Especifica o tipo de dados esperado
                 setResults(data);
+
+        console.log(data);
+
             } catch (error) {
                 console.error('Error fetching search results:', error);
             }
@@ -34,28 +64,53 @@ const SearchScreen = () => {
         } else {
             setResults([]);
         }
-    }, [query]);
-
-    console.log(results);
+    }, [query, searchType]);
 
     return (
-        <View>
+        <View style={styles.container}>
+            
             <TextInput
                 style={styles.input}
                 value={query}
                 onChangeText={setQuery}
-                placeholder="Search"
+                placeholder="Buscar"
             />
+            <View style={styles.tabContainer}>
+                <TouchableOpacity 
+                    style={[styles.tab, searchType === 'users' && styles.activeTab]} 
+                    onPress={() => handleSearchType('users')}
+                >
+                    <Text style={styles.tabText}>Usuários</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                    style={[styles.tab, searchType === 'posts' && styles.activeTab]} 
+                    onPress={() => handleSearchType('posts')}
+                >
+                    <Text style={styles.tabText}>Posts</Text>
+                </TouchableOpacity>
+            </View>
             <FlatList
                 data={results}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({ item }) => (
                     <View style={styles.resultItem}>
-                        <View style={styles.profilePicture} />
-                        <View>
-                            <Text style={styles.name}>{item.name}</Text>
-                            <Text style={styles.login}>{item.login}</Text>
-                        </View>
+                        {searchType === 'users' ? (
+                            <>
+                                <View style={styles.profilePicture} />
+                                <View>
+                                    <Text style={styles.name}>{(item as User).name}</Text>
+                                    <Text style={styles.login}>{(item as User).user_login}</Text>
+                                </View>
+                            </>
+                        ) : (
+                            <>
+                                <View style={styles.profilePicture} />
+                                <View>
+                                    <Text style={styles.name}>{(item as Post).message}</Text>
+                                    <Text style={styles.login}>Por: {(item as Post).user_login}</Text>
+                                </View>
+                            </>
+                        )}
                     </View>
                 )}
             />
@@ -64,6 +119,28 @@ const SearchScreen = () => {
 };
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 10,
+    },
+    tabContainer: {
+        flexDirection: 'row',
+        marginBottom: 10,
+    },
+    tab: {
+        flex: 1,
+        padding: 10,
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'gray',
+    },
+    activeTab: {
+        backgroundColor: '#ddd',
+    },
+    tabText: {
+        fontWeight: 'bold',
+        color: "#fff"
+    },
     input: {
         height: 40,
         borderColor: 'gray',
