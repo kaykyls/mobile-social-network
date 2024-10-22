@@ -45,7 +45,6 @@ export default function TabTwoScreen() {
           Alert.alert('Erro', 'Não foi possível carregar os dados do usuário.');
         }
 
-        // Fetch posts for the user
         fetchUserPosts(user.user_login, user.token);
       } else {
         Alert.alert('Erro', 'ID do usuário não encontrado.');
@@ -101,7 +100,7 @@ export default function TabTwoScreen() {
 
       if (response.ok) {
         Alert.alert('Sucesso', 'Postagem excluída com sucesso.');
-        // Refresh posts after deletion
+        
         fetchUserPosts(user.user_login, user.token);
       } else {
         Alert.alert('Erro', 'Não foi possível excluir a postagem.');
@@ -227,7 +226,6 @@ const styles = StyleSheet.create({
     borderBottomColor: '#ddd',
     position: 'relative',
     height: 80
-    // Certifique-se de que o dropdown esteja em relação a este componente
   },
   postMessage: {
     fontSize: 16,
@@ -246,8 +244,8 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderRadius: 4,
     elevation: 2,
-    zIndex: 10, // Aumente o zIndex se necessário
-    overflow: 'visible', // Garanta que o conteúdo seja visível
+    zIndex: 10,
+    overflow: 'visible',
   },
   dropdownItem: {
     padding: 8,
