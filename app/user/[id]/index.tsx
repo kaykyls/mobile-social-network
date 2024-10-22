@@ -97,7 +97,6 @@ export default function UserProfileScreen() {
 
         if (response.ok) {
           setIsFollowing(!isFollowing);
-          Alert.alert(isFollowing ? 'Deixou de seguir' : 'Agora você está seguindo');
         } else {
           Alert.alert('Erro', 'Não foi possível realizar a ação.');
         }
