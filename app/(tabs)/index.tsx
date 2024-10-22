@@ -3,6 +3,7 @@ import { StyleSheet, FlatList, Pressable, View } from 'react-native';
 import { Text } from '@/components/Themed';
 import { Link } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 
 interface Post {
   id: string;
@@ -10,23 +11,32 @@ interface Post {
   message: string;
 }
 
-const PostItem: React.FC<{ item: Post }> = ({ item }) => (
-  <View style={styles.post}>
-    <Link href={`/user/${item.user_login}`} style={styles.picture}>
-      <Pressable>
-        <View />
-      </Pressable>
-    </Link>
-    <View style={styles.content}>
-      <View style={styles.name}>
-        <Text>@{item.user_login}</Text>
-      </View>
-      <View style={styles.text}>
-        <Text>{item.message}</Text>
+const PostItem: React.FC<{ item: Post }> = ({ item }) => {
+  const router = useRouter();
+
+  return (
+    <View style={styles.post}>
+      <Link href={`/user/${item.user_login}`} style={styles.picture}>
+        <Pressable>
+          <View />
+        </Pressable>
+      </Link>
+      <View style={styles.content}>
+        <View style={styles.name}>
+          <Text>@{item.user_login}</Text>
+        </View>
+        <View style={styles.text}>
+          <Text>{item.message}</Text>
+        </View>
+        <Pressable onPress={() => router.push(`/post/${item.id}/replies`)} style={styles.replyButton}>
+          <Text>
+            Comentários
+          </Text>
+        </Pressable>
       </View>
     </View>
-  </View>
-);
+  );
+};
 
 const TabOneScreen: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -141,6 +151,12 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     lineHeight: 60,
+  },
+  replyButton: {
+    backgroundColor: '#007bff',
+    padding: 10,
+    borderRadius: 6,
+    marginTop: 16,
   },
 });
 
